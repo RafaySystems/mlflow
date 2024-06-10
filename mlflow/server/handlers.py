@@ -2104,6 +2104,7 @@ def _download_artifact(artifact_path):
         archive_path = os.path.join(tmp_dir.name, os.path.basename(dst) + ".tgz")
         make_tarfile(archive_path, dst, "")
         dst = archive_path
+        artifact_path = os.path.join(artifact_path, "archive.tgz")
 
     # Ref: https://stackoverflow.com/a/24613980/6943581
     file_handle = open(dst, "rb")  # noqa: SIM115
