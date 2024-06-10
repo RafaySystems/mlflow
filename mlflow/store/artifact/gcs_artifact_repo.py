@@ -124,7 +124,8 @@ class GCSArtifactRepository(ArtifactRepository, MultipartUploadMixin):
             # returns subdirectories as well
             if result.name == prefix:
                 continue
-            blob_path = result.name[len(artifact_path) + 1 :]
+            start = len(artifact_path) + 1 if artifact_path else 0
+            blob_path = result.name[start :]
             infos.append(FileInfo(blob_path, False, result.size))
 
         return sorted(infos, key=lambda f: f.path)
@@ -134,8 +135,9 @@ class GCSArtifactRepository(ArtifactRepository, MultipartUploadMixin):
         dir_paths = set()
         for page in results.pages:
             dir_paths.update(page.prefixes)
+        start = len(artifact_path) + 1 if artifact_path else 0
 
-        return [FileInfo(path[len(artifact_path) + 1 : -1], True, None) for path in dir_paths]
+        return [FileInfo(path[start : -1], True, None) for path in dir_paths]
 
     def _download_file(self, remote_file_path, local_path):
         (bucket, remote_root_path) = self.parse_gcs_uri(self.artifact_uri)
