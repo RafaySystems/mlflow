@@ -112,7 +112,7 @@ from mlflow.tracking._model_registry.registry import ModelRegistryStoreRegistry
 from mlflow.tracking._tracking_service import utils
 from mlflow.tracking._tracking_service.registry import TrackingStoreRegistry
 from mlflow.tracking.registry import UnsupportedModelRegistryStoreURIException
-from mlflow.utils.file_utils import local_file_uri_to_path
+from mlflow.utils.file_utils import local_file_uri_to_path, make_tarfile
 from mlflow.utils.mime_type_utils import _guess_mime_type
 from mlflow.utils.promptlab_utils import _create_promptlab_run_impl
 from mlflow.utils.proto_json_utils import message_to_json, parse_dict
@@ -2098,6 +2098,12 @@ def _download_artifact(artifact_path):
     tmp_dir = tempfile.TemporaryDirectory()
     artifact_repo = _get_artifact_repo_mlflow_artifacts()
     dst = artifact_repo.download_artifacts(artifact_path, tmp_dir.name)
+
+    # Compress it into a tar.gz file if `dst` is a directory
+    if os.path.isdir(dst):
+        archive_path = os.path.join(tmp_dir.name, os.path.basename(dst) + ".tgz")
+        make_tarfile(archive_path, dst, "")
+        dst = archive_path
 
     # Ref: https://stackoverflow.com/a/24613980/6943581
     file_handle = open(dst, "rb")  # noqa: SIM115
